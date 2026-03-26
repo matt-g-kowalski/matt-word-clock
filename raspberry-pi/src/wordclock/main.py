@@ -1,5 +1,7 @@
 import argparse
 import time
+import signal
+import sys
 from clock_display_hal import ClockDisplayHAL
 from datetime import datetime
 from word_clock import WordClock
@@ -11,6 +13,13 @@ from word_clock import WordClock
 def main(pin, max_brightness, gif_path):
     clock_display_hal = ClockDisplayHAL(pin, max_brightness)
     word_clock = WordClock(clock_display_hal, gif_path)
+
+    def cleanup_and_exit(*args):
+        clock_display_hal.clear_pixels()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, cleanup_and_exit)
+    signal.signal(signal.SIGTERM, cleanup_and_exit)
 
     try:
         while True:
